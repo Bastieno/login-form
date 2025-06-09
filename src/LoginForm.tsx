@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './LoginForm.css';
 
 interface LoginData {
@@ -21,7 +21,16 @@ const LoginForm = () => {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
 
+  // Refs for accessibility
+  const modalRef = useRef<HTMLDivElement>(null);
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const errorMessageId = 'login-error-message';
+  const successMessageId = 'login-success-message';
+
   const openModal = (): void => {
+    // Store current focus for restoration
+    previousFocusRef.current = document.activeElement as HTMLElement;
     setIsOpen(true);
     document.body.style.overflow = "hidden";
   };
@@ -33,6 +42,11 @@ const LoginForm = () => {
     setFormData({ email: '', password: '' });
     setError('');
     setSuccess('');
+    
+    // Restore focus to previous element
+    if (previousFocusRef.current) {
+      previousFocusRef.current.focus();
+    }
   };
 
   // Mock fetch function to simulate server communication
@@ -124,6 +138,49 @@ const LoginForm = () => {
     }
   };
 
+  // Focus management and modal effects
+  useEffect(() => {
+    if (isOpen && emailInputRef.current) {
+      // Focus the email input when modal opens
+      setTimeout(() => {
+        emailInputRef.current?.focus();
+      }, 100);
+    }
+  }, [isOpen]);
+
+  // Focus trap for modal
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const modal = modalRef.current;
+      if (!modal) return;
+
+      const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      if (e.shiftKey) {
+        if (document.activeElement === firstElement) {
+          lastElement.focus();
+          e.preventDefault();
+        }
+      } else {
+        if (document.activeElement === lastElement) {
+          firstElement.focus();
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleTabKey);
+    return () => document.removeEventListener('keydown', handleTabKey);
+  }, [isOpen]);
+
   useEffect(() => {
     const handleScroll = (): void => {
       if (window.scrollY > window.innerHeight / 3 && !isOpened) {
@@ -161,16 +218,23 @@ const LoginForm = () => {
       
       <div className="container"></div>
       
-      <div className={`modal ${isOpen ? 'is-open' : ''}`}>
-        <div className="modal-container">
+      <div 
+        className={`modal ${isOpen ? 'is-open' : ''}`}
+        role={isOpen ? "dialog" : undefined}
+        aria-modal={isOpen ? "true" : undefined}
+        aria-labelledby={isOpen ? "modal-title" : undefined}
+        aria-hidden={!isOpen}
+      >
+        <div className="modal-container" ref={modalRef}>
           <div className="modal-left">
-            <h1 className="modal-title">Welcome!</h1>
+            <h1 id="modal-title" className="modal-title">Welcome!</h1>
             <p className="modal-desc">Please enter your credentials to continue.</p>
             
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="input-block">
                 <label htmlFor="email" className="input-label">Email</label>
                 <input 
+                  ref={emailInputRef}
                   type="email" 
                   name="email" 
                   id="email" 
@@ -179,6 +243,9 @@ const LoginForm = () => {
                   onChange={handleInputChange}
                   disabled={isLoading}
                   required
+                  autoComplete="email"
+                  aria-describedby={error ? errorMessageId : undefined}
+                  aria-invalid={error ? "true" : "false"}
                 />
               </div>
               <div className="input-block">
@@ -192,43 +259,73 @@ const LoginForm = () => {
                   onChange={handleInputChange}
                   disabled={isLoading}
                   required
+                  autoComplete="current-password"
+                  aria-describedby={error ? errorMessageId : undefined}
+                  aria-invalid={error ? "true" : "false"}
                 />
               </div>
               
               {error && (
-                <div className="error-message" style={{
-                  color: '#e74c3c',
-                  fontSize: '14px',
-                  marginBottom: '15px',
-                  padding: '10px',
-                  backgroundColor: '#fdf2f2',
-                  border: '1px solid #fecaca',
-                  borderRadius: '4px'
-                }}>
+                <div 
+                  id={errorMessageId}
+                  className="error-message" 
+                  role="alert"
+                  aria-live="polite"
+                  style={{
+                    color: '#e74c3c',
+                    fontSize: '14px',
+                    marginBottom: '15px',
+                    padding: '10px',
+                    backgroundColor: '#fdf2f2',
+                    border: '1px solid #fecaca',
+                    borderRadius: '4px'
+                  }}
+                >
                   {error}
                 </div>
               )}
               
               {success && (
-                <div className="success-message" style={{
-                  color: '#27ae60',
-                  fontSize: '14px',
-                  marginBottom: '15px',
-                  padding: '10px',
-                  backgroundColor: '#f0f9f4',
-                  border: '1px solid #bbf7d0',
-                  borderRadius: '4px'
-                }}>
+                <div 
+                  id={successMessageId}
+                  className="success-message" 
+                  role="alert"
+                  aria-live="polite"
+                  style={{
+                    color: '#27ae60',
+                    fontSize: '14px',
+                    marginBottom: '15px',
+                    padding: '10px',
+                    backgroundColor: '#f0f9f4',
+                    border: '1px solid #bbf7d0',
+                    borderRadius: '4px'
+                  }}
+                >
                   {success}
                 </div>
               )}
               
               <div className="modal-buttons">
-                <a href="#" className="">Forgot your password?</a>
+                <button 
+                  type="button"
+                  className="forgot-password-link"
+                  onClick={() => alert('Forgot password functionality would be implemented here')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(51, 51, 51, 0.6)',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    textDecoration: 'underline'
+                  }}
+                >
+                  Forgot your password?
+                </button>
                 <button 
                   type="submit" 
                   className="input-button"
                   disabled={isLoading}
+                  aria-describedby={isLoading ? "login-status" : undefined}
                   style={{
                     opacity: isLoading ? 0.7 : 1,
                     cursor: isLoading ? 'not-allowed' : 'pointer'
@@ -236,21 +333,58 @@ const LoginForm = () => {
                 >
                   {isLoading ? 'Logging in...' : 'Login'}
                 </button>
+                {isLoading && (
+                  <span id="login-status" className="sr-only">
+                    Login in progress, please wait
+                  </span>
+                )}
               </div>
             </form>
             
-            <p className="sign-up">Don't have an account? <a href="#">Sign up now</a></p>
+            <p className="sign-up">
+              Don't have an account? 
+              <button 
+                type="button"
+                className="sign-up-link"
+                onClick={() => alert('Sign up functionality would be implemented here')}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#8c7569',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  marginLeft: '4px'
+                }}
+              >
+                Sign up now
+              </button>
+            </p>
           </div>
           <div className="modal-right">
-            <img src="https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=dfd2ec5a01006fd8c4d7592a381d3776&auto=format&fit=crop&w=1000&q=80" alt="" />
+            <img 
+              src="https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=dfd2ec5a01006fd8c4d7592a381d3776&auto=format&fit=crop&w=1000&q=80" 
+              alt="A workspace with a laptop, coffee cup, and plant on a white desk"
+            />
           </div>
-          <button className="icon-button close-button" onClick={closeModal}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+          <button 
+            className="icon-button close-button" 
+            onClick={closeModal}
+            aria-label="Close login dialog"
+            type="button"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" aria-hidden="true">
               <path d="M 25 3 C 12.86158 3 3 12.86158 3 25 C 3 37.13842 12.86158 47 25 47 C 37.13842 47 47 37.13842 47 25 C 47 12.86158 37.13842 3 25 3 z M 25 5 C 36.05754 5 45 13.94246 45 25 C 45 36.05754 36.05754 45 25 45 C 13.94246 45 5 36.05754 5 25 C 5 13.94246 13.94246 5 25 5 z M 16.990234 15.990234 A 1.0001 1.0001 0 0 0 16.292969 17.707031 L 23.585938 25 L 16.292969 32.292969 A 1.0001 1.0001 0 1 0 17.707031 33.707031 L 25 26.414062 L 32.292969 33.707031 A 1.0001 1.0001 0 1 0 33.707031 32.292969 L 26.414062 25 L 33.707031 17.707031 A 1.0001 1.0001 0 0 0 32.980469 15.990234 A 1.0001 1.0001 0 0 0 32.292969 16.292969 L 25 23.585938 L 17.707031 16.292969 A 1.0001 1.0001 0 0 0 16.990234 15.990234 z"></path>
             </svg>
           </button>
         </div>
-        <button className="modal-button" onClick={openModal}>Click here to login</button>
+        <button 
+          className="modal-button" 
+          onClick={openModal}
+          aria-label="Open login dialog"
+          type="button"
+        >
+          Click here to login
+        </button>
       </div>
     </>
   );

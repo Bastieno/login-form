@@ -236,6 +236,44 @@ body {
   fill: currentColor;
 }
 
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .modal-container {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+  
+  .modal-left {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+  
+  .modal-right img {
+    transition-duration: 0.01ms !important;
+    transform: none !important;
+  }
+}
+
 @media(max-width: 750px) {
   .modal-container {
     width: 90%;
