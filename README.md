@@ -122,6 +122,38 @@ The app uses a comprehensive design token system:
 - **Font Family**: Nunito (Google Fonts)
 - **Weights**: 400 (regular), 600 (semi-bold), 700 (bold)
 
+## 🚀 Deployment
+
+This project is configured for automatic deployment to GitHub Pages using GitHub Actions.
+
+### Automatic Deployment
+
+The app automatically deploys to GitHub Pages when you:
+
+1. Push changes to the `main` branch
+2. Manually trigger the workflow from the Actions tab
+
+### Setup Instructions
+
+1. **Enable GitHub Pages**:
+   - Go to your repository Settings → Pages
+   - Under "Source", select "GitHub Actions"
+   - The workflow will handle the rest automatically
+
+2. **Access Your Deployed App**:
+   - Your app will be available at: `https://yourusername.github.io/login-form/`
+   - Replace `yourusername` with your GitHub username
+
+### Manual Deployment
+
+If you prefer manual deployment, you can also run:
+
+```bash
+npm run build
+```
+
+Then upload the `dist/` folder contents to your hosting provider.
+
 ## 🔧 Development
 
 ### Available Scripts
