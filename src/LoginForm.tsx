@@ -1,10 +1,25 @@
 import { useState, useEffect } from 'react';
 import './LoginForm.css';
 
+interface LoginData {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  token?: string;
+}
+
 const LoginForm = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpened, setIsOpened] = useState<boolean>(false);
   const [showScrollDown, setShowScrollDown] = useState<boolean>(true);
+  const [formData, setFormData] = useState<LoginData>({ email: '', password: '' });
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
 
   const openModal = (): void => {
     setIsOpen(true);
@@ -14,6 +29,99 @@ const LoginForm = () => {
   const closeModal = (): void => {
     setIsOpen(false);
     document.body.style.overflow = "initial";
+    // Reset form state when closing modal
+    setFormData({ email: '', password: '' });
+    setError('');
+    setSuccess('');
+  };
+
+  // Mock fetch function to simulate server communication
+  const mockFetch = async (url: string, options: RequestInit): Promise<Response> => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const body = JSON.parse(options.body as string);
+        
+        // Mock validation logic
+        if (!body.email || !body.password) {
+          resolve(new Response(JSON.stringify({
+            success: false,
+            message: 'Email and password are required'
+          }), { status: 400 }));
+          return;
+        }
+
+        if (!body.email.includes('@')) {
+          resolve(new Response(JSON.stringify({
+            success: false,
+            message: 'Please enter a valid email address'
+          }), { status: 400 }));
+          return;
+        }
+
+        if (body.password.length < 6) {
+          resolve(new Response(JSON.stringify({
+            success: false,
+            message: 'Password must be at least 6 characters long'
+          }), { status: 400 }));
+          return;
+        }
+
+        // Mock successful login
+        resolve(new Response(JSON.stringify({
+          success: true,
+          message: 'Login successful!',
+          token: 'mock-jwt-token-' + Date.now()
+        }), { status: 200 }));
+      }, 1500); // Simulate network delay
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear errors when user starts typing
+    if (error) setError('');
+    if (success) setSuccess('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      console.log('Sending login request with:', formData);
+      
+      const response = await mockFetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const result: LoginResponse = await response.json();
+
+      if (result.success) {
+        setSuccess(result.message);
+        console.log('Login successful! Token:', result.token);
+        // In a real app, you would store the token and redirect the user
+        setTimeout(() => {
+          closeModal();
+        }, 2000);
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -57,19 +165,80 @@ const LoginForm = () => {
         <div className="modal-container">
           <div className="modal-left">
             <h1 className="modal-title">Welcome!</h1>
-            <p className="modal-desc">Fanny pack hexagon food truck, street art waistcoat kitsch.</p>
-            <div className="input-block">
-              <label htmlFor="email" className="input-label">Email</label>
-              <input type="email" name="email" id="email" placeholder="Email" />
-            </div>
-            <div className="input-block">
-              <label htmlFor="password" className="input-label">Password</label>
-              <input type="password" name="password" id="password" placeholder="Password" />
-            </div>
-            <div className="modal-buttons">
-              <a href="#" className="">Forgot your password?</a>
-              <button className="input-button">Login</button>
-            </div>
+            <p className="modal-desc">Please enter your credentials to continue.</p>
+            
+            <form onSubmit={handleSubmit}>
+              <div className="input-block">
+                <label htmlFor="email" className="input-label">Email</label>
+                <input 
+                  type="email" 
+                  name="email" 
+                  id="email" 
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+              <div className="input-block">
+                <label htmlFor="password" className="input-label">Password</label>
+                <input 
+                  type="password" 
+                  name="password" 
+                  id="password" 
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+              
+              {error && (
+                <div className="error-message" style={{
+                  color: '#e74c3c',
+                  fontSize: '14px',
+                  marginBottom: '15px',
+                  padding: '10px',
+                  backgroundColor: '#fdf2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '4px'
+                }}>
+                  {error}
+                </div>
+              )}
+              
+              {success && (
+                <div className="success-message" style={{
+                  color: '#27ae60',
+                  fontSize: '14px',
+                  marginBottom: '15px',
+                  padding: '10px',
+                  backgroundColor: '#f0f9f4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '4px'
+                }}>
+                  {success}
+                </div>
+              )}
+              
+              <div className="modal-buttons">
+                <a href="#" className="">Forgot your password?</a>
+                <button 
+                  type="submit" 
+                  className="input-button"
+                  disabled={isLoading}
+                  style={{
+                    opacity: isLoading ? 0.7 : 1,
+                    cursor: isLoading ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isLoading ? 'Logging in...' : 'Login'}
+                </button>
+              </div>
+            </form>
+            
             <p className="sign-up">Don't have an account? <a href="#">Sign up now</a></p>
           </div>
           <div className="modal-right">
