@@ -12,6 +12,13 @@ interface LoginResponse {
   token?: string;
 }
 
+// Constants for timing values (matching CSS custom properties)
+const TIMING_CONSTANTS = {
+  NETWORK_SIMULATION_DELAY: 1500,
+  SUCCESS_DISPLAY_DURATION: 3500,
+  FOCUS_DELAY: 100,
+} as const;
+
 const LoginForm = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isOpened, setIsOpened] = useState<boolean>(false);
@@ -52,7 +59,7 @@ const LoginForm = () => {
   };
 
   // Mock fetch function to simulate server communication
-  const mockFetch = async (url: string, options: RequestInit): Promise<Response> => {
+  const mockFetch = async (_url: string, options: RequestInit): Promise<Response> => {
     return new Promise((resolve) => {
       setTimeout(() => {
         const body = JSON.parse(options.body as string);
@@ -88,7 +95,7 @@ const LoginForm = () => {
           message: 'Login successful!',
           token: 'mock-jwt-token-' + Date.now()
         }), { status: 200 }));
-      }, 1500); // Simulate network delay
+      }, TIMING_CONSTANTS.NETWORK_SIMULATION_DELAY);
     });
   };
 
@@ -128,10 +135,10 @@ const LoginForm = () => {
         setShowSuccessAnimation(true);
         console.log('Login successful! Token:', result.token);
         
-        // Show success animation for 1.5 seconds, then close modal
+        // Show success animation, then close modal
         setTimeout(() => {
           closeModal();
-        }, 3500); // Extended time to show animation
+        }, TIMING_CONSTANTS.SUCCESS_DISPLAY_DURATION);
       } else {
         setError(result.message);
       }
@@ -154,7 +161,7 @@ const LoginForm = () => {
       // Focus the email input when modal opens
       setTimeout(() => {
         emailInputRef.current?.focus();
-      }, 100);
+      }, TIMING_CONSTANTS.FOCUS_DELAY);
     }
   }, [isOpen]);
 
@@ -320,15 +327,6 @@ const LoginForm = () => {
                   className="error-message" 
                   role="alert"
                   aria-live="polite"
-                  style={{
-                    color: '#e74c3c',
-                    fontSize: '14px',
-                    marginBottom: '15px',
-                    padding: '10px',
-                    backgroundColor: '#fdf2f2',
-                    border: '1px solid #fecaca',
-                    borderRadius: '4px'
-                  }}
                 >
                   {error}
                 </div>
@@ -340,18 +338,6 @@ const LoginForm = () => {
                   className={`success-message ${showSuccessAnimation ? 'success-animation' : ''}`}
                   role="alert"
                   aria-live="polite"
-                  style={{
-                    color: '#27ae60',
-                    fontSize: '14px',
-                    marginBottom: '15px',
-                    padding: '10px',
-                    backgroundColor: '#f0f9f4',
-                    border: '1px solid #bbf7d0',
-                    borderRadius: '4px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
                 >
                   {showSuccessAnimation && (
                     <svg 
@@ -360,33 +346,22 @@ const LoginForm = () => {
                       height="20" 
                       viewBox="0 0 20 20" 
                       fill="none"
-                      style={{
-                        animation: 'checkmark 0.6s ease-in-out'
-                      }}
                     >
                       <circle 
                         cx="10" 
                         cy="10" 
                         r="9" 
-                        stroke="#27ae60" 
+                        stroke="var(--color-success)" 
                         strokeWidth="2" 
                         fill="none"
-                        style={{
-                          animation: 'circle 0.6s ease-in-out'
-                        }}
                       />
                       <path 
                         d="M6 10l3 3 5-5" 
-                        stroke="#27ae60" 
+                        stroke="var(--color-success)" 
                         strokeWidth="2" 
                         fill="none" 
                         strokeLinecap="round" 
                         strokeLinejoin="round"
-                        style={{
-                          strokeDasharray: '10',
-                          strokeDashoffset: '10',
-                          animation: 'checkmark 0.6s ease-in-out 0.3s forwards'
-                        }}
                       />
                     </svg>
                   )}
@@ -399,14 +374,6 @@ const LoginForm = () => {
                   type="button"
                   className="forgot-password-link"
                   onClick={() => alert('Forgot password functionality would be implemented here')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: 'rgba(51, 51, 51, 0.6)',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    textDecoration: 'underline'
-                  }}
                 >
                   Forgot your password?
                 </button>
@@ -415,10 +382,6 @@ const LoginForm = () => {
                   className="input-button"
                   disabled={isLoading}
                   aria-describedby={isLoading ? "login-status" : undefined}
-                  style={{
-                    opacity: isLoading ? 0.7 : 1,
-                    cursor: isLoading ? 'not-allowed' : 'pointer'
-                  }}
                 >
                   {isLoading ? 'Logging in...' : 'Login'}
                 </button>
@@ -436,14 +399,6 @@ const LoginForm = () => {
                 type="button"
                 className="sign-up-link"
                 onClick={() => alert('Sign up functionality would be implemented here')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: '#8c7569',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  marginLeft: '4px'
-                }}
               >
                 Sign up now
               </button>
