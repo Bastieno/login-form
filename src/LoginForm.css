@@ -11,6 +11,7 @@ body {
 
 .container {
   height: 200vh;
+  margin-top: 70px; /* Account for header */
   background-image: url(https://images.unsplash.com/photo-1538137524007-21e48fa42f3f?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=ac9fa0975bd2ebad7afd906c5a3a15ab&auto=format&fit=crop&w=1834&q=80);
   background-size: cover;
   background-position: center;
@@ -234,6 +235,138 @@ body {
   margin-top: 16px;
   width: 52px;
   fill: currentColor;
+}
+
+/* Header styles */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(140, 117, 105, 0.1);
+  padding: 15px 0;
+}
+
+.header-content {
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #55311c;
+  margin: 0;
+  font-family: "Nunito", sans-serif;
+}
+
+.nav-login-btn {
+  background: #8c7569;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-login-btn:hover {
+  background: #55311c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(140, 117, 105, 0.3);
+}
+
+.nav-login-btn:focus {
+  outline: 2px solid #8c7569;
+  outline-offset: 2px;
+}
+
+/* No-JS fallback styles */
+.no-js-login {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(51, 51, 51, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.no-js-container {
+  background: white;
+  padding: 40px;
+  border-radius: 10px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.no-js-container h2 {
+  color: #55311c;
+  margin-bottom: 15px;
+  font-family: "Nunito", sans-serif;
+}
+
+.no-js-container p {
+  color: rgba(0, 0, 0, 0.7);
+  margin-bottom: 25px;
+  font-family: "Nunito", sans-serif;
+}
+
+.no-js-form {
+  text-align: left;
+}
+
+/* Success animation styles */
+.success-animation {
+  animation: successPulse 0.6s ease-in-out;
+}
+
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes circle {
+  0% {
+    stroke-dasharray: 0 57;
+    transform: rotate(-90deg);
+  }
+  100% {
+    stroke-dasharray: 57 57;
+    transform: rotate(-90deg);
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 10;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* Screen reader only text */

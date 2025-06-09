@@ -20,6 +20,8 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState<boolean>(false);
+  const [jsEnabled, setJsEnabled] = useState<boolean>(false);
 
   // Refs for accessibility
   const modalRef = useRef<HTMLDivElement>(null);
@@ -106,6 +108,7 @@ const LoginForm = () => {
     setIsLoading(true);
     setError('');
     setSuccess('');
+    setShowSuccessAnimation(false);
 
     try {
       console.log('Sending login request with:', formData);
@@ -122,11 +125,13 @@ const LoginForm = () => {
 
       if (result.success) {
         setSuccess(result.message);
+        setShowSuccessAnimation(true);
         console.log('Login successful! Token:', result.token);
-        // In a real app, you would store the token and redirect the user
+        
+        // Show success animation for 1.5 seconds, then close modal
         setTimeout(() => {
           closeModal();
-        }, 2000);
+        }, 3500); // Extended time to show animation
       } else {
         setError(result.message);
       }
@@ -137,6 +142,11 @@ const LoginForm = () => {
       setIsLoading(false);
     }
   };
+
+  // Progressive enhancement - detect JavaScript
+  useEffect(() => {
+    setJsEnabled(true);
+  }, []);
 
   // Focus management and modal effects
   useEffect(() => {
@@ -207,7 +217,25 @@ const LoginForm = () => {
 
   return (
     <>
-      {showScrollDown && (
+      {/* Header with Login Link */}
+      <header className="header">
+        <div className="header-content">
+          <h1 className="logo">MyApp</h1>
+          <nav className="nav">
+            <button 
+              className="nav-login-btn"
+              onClick={openModal}
+              aria-label="Open login dialog"
+              type="button"
+            >
+              Login
+            </button>
+          </nav>
+        </div>
+      </header>
+
+      {/* Progressive Enhancement: Only show scroll instruction if JS is enabled */}
+      {jsEnabled && showScrollDown && (
         <div className="scroll-down">
           SCROLL DOWN
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
@@ -215,6 +243,27 @@ const LoginForm = () => {
           </svg>
         </div>
       )}
+
+      {/* Fallback content for no-JS users */}
+      <noscript>
+        <div className="no-js-login">
+          <div className="no-js-container">
+            <h2>Login Required</h2>
+            <p>Please enable JavaScript for the full experience, or use the form below:</p>
+            <form action="/login" method="post" className="no-js-form">
+              <div className="input-block">
+                <label htmlFor="no-js-email">Email</label>
+                <input type="email" id="no-js-email" name="email" required autoComplete="email" />
+              </div>
+              <div className="input-block">
+                <label htmlFor="no-js-password">Password</label>
+                <input type="password" id="no-js-password" name="password" required autoComplete="current-password" />
+              </div>
+              <button type="submit" className="input-button">Login</button>
+            </form>
+          </div>
+        </div>
+      </noscript>
       
       <div className="container"></div>
       
@@ -288,7 +337,7 @@ const LoginForm = () => {
               {success && (
                 <div 
                   id={successMessageId}
-                  className="success-message" 
+                  className={`success-message ${showSuccessAnimation ? 'success-animation' : ''}`}
                   role="alert"
                   aria-live="polite"
                   style={{
@@ -298,9 +347,49 @@ const LoginForm = () => {
                     padding: '10px',
                     backgroundColor: '#f0f9f4',
                     border: '1px solid #bbf7d0',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
                   }}
                 >
+                  {showSuccessAnimation && (
+                    <svg 
+                      className="success-icon" 
+                      width="20" 
+                      height="20" 
+                      viewBox="0 0 20 20" 
+                      fill="none"
+                      style={{
+                        animation: 'checkmark 0.6s ease-in-out'
+                      }}
+                    >
+                      <circle 
+                        cx="10" 
+                        cy="10" 
+                        r="9" 
+                        stroke="#27ae60" 
+                        strokeWidth="2" 
+                        fill="none"
+                        style={{
+                          animation: 'circle 0.6s ease-in-out'
+                        }}
+                      />
+                      <path 
+                        d="M6 10l3 3 5-5" 
+                        stroke="#27ae60" 
+                        strokeWidth="2" 
+                        fill="none" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        style={{
+                          strokeDasharray: '10',
+                          strokeDashoffset: '10',
+                          animation: 'checkmark 0.6s ease-in-out 0.3s forwards'
+                        }}
+                      />
+                    </svg>
+                  )}
                   {success}
                 </div>
               )}
