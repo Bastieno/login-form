@@ -110,6 +110,13 @@ const LoginForm = () => {
     if (success) setSuccess('');
   };
 
+  const handleInputBlockClick = (inputId: string): void => {
+    const input = document.getElementById(inputId);
+    if (input) {
+      input.focus();
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
     setIsLoading(true);
@@ -287,14 +294,19 @@ const LoginForm = () => {
             <p className="modal-desc">Please enter your credentials to continue.</p>
             
             <form onSubmit={handleSubmit} noValidate>
-              <div className="input-block">
+              <div 
+                className="input-block"
+                onClick={() => handleInputBlockClick('email')}
+                role="button"
+                tabIndex={-1}
+              >
                 <label htmlFor="email" className="input-label">Email</label>
                 <input 
                   ref={emailInputRef}
                   type="email" 
                   name="email" 
                   id="email" 
-                  placeholder="Email"
+                  placeholder="Enter your email address"
                   value={formData.email}
                   onChange={handleInputChange}
                   disabled={isLoading}
@@ -304,13 +316,18 @@ const LoginForm = () => {
                   aria-invalid={error ? "true" : "false"}
                 />
               </div>
-              <div className="input-block">
+              <div 
+                className="input-block"
+                onClick={() => handleInputBlockClick('password')}
+                role="button"
+                tabIndex={-1}
+              >
                 <label htmlFor="password" className="input-label">Password</label>
                 <input 
                   type="password" 
                   name="password" 
                   id="password" 
-                  placeholder="Password"
+                  placeholder="Enter your password"
                   value={formData.password}
                   onChange={handleInputChange}
                   disabled={isLoading}

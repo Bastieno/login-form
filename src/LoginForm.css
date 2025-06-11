@@ -2,14 +2,14 @@
 
 /* CSS Custom Properties for Colors and Timing */
 :root {
-  /* Color Palette */
+  /* Color Palette - Improved contrast ratios */
   --color-primary: #8c7569;
-  --color-primary-dark: #55311c;
+  --color-primary-dark: #3d2317;
   --color-primary-light: #7a6559;
-  --color-text-primary: rgba(0, 0, 0, 0.7);
-  --color-text-secondary: rgba(51, 51, 51, 0.6);
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #4a4a4a;
   --color-white: #ffffff;
-  --color-border: #ddd;
+  --color-border: #c0c0c0;
   --color-placeholder: #ccc;
   
   /* Status Colors */
@@ -89,6 +89,8 @@ body {
   transition-duration: var(--timing-fast);
   background: var(--color-white);
   transform: translateY(100px) scale(0.4);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
 }
 
 .modal-title {
@@ -148,10 +150,17 @@ body {
 .modal.is-open {
   height: 100%;
   background: var(--color-modal-overlay);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal.is-open .modal-button {
   opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .modal.is-open .modal-container {
@@ -214,31 +223,38 @@ body {
 }
 
 .input-label {
-  font-size: 11px;
+  font-size: 12px;
   text-transform: uppercase;
   font-family: var(--font-family);
   font-weight: 600;
   letter-spacing: 0.7px;
-  color: var(--color-primary);
+  color: var(--color-text-secondary);
   transition: var(--timing-fast);
 }
 
 .input-block {
   display: flex;
   flex-direction: column;
-  padding: 10px 10px 8px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
+  padding: 12px 14px 10px;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
   margin-bottom: 20px;
   transition: var(--timing-fast);
+  cursor: text;
+  min-height: 56px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .input-block input {
   outline: 0;
   border: 0;
-  padding: 4px 0 0;
-  font-size: 14px;
+  padding: 6px 0 0;
+  font-size: 16px;
   font-family: var(--font-family);
+  background: transparent;
+  flex: 1;
+  touch-action: manipulation;
 }
 
 .input-block input::placeholder {
@@ -248,10 +264,15 @@ body {
 
 .input-block:focus-within {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
 }
 
 .input-block:focus-within .input-label {
-  color: rgba(140, 117, 105, 0.8);
+  color: var(--color-primary-dark);
+}
+
+.input-block:hover {
+  border-color: var(--color-primary-light);
 }
 
 /* CSS Classes for Error and Success Messages */
@@ -282,21 +303,35 @@ body {
 .forgot-password-link {
   background: none;
   border: none;
-  color: var(--color-text-secondary);
+  color: var(--color-primary-dark);
   font-size: 14px;
   cursor: pointer;
   text-decoration: underline;
   font-family: var(--font-family);
 }
 
+.forgot-password-link:hover,
+.forgot-password-link:focus {
+  color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .sign-up-link {
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   cursor: pointer;
   text-decoration: underline;
   margin-left: 4px;
   font-family: var(--font-family);
+}
+
+.sign-up-link:hover,
+.sign-up-link:focus {
+  color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 /* Success Icon Animation */
@@ -317,14 +352,33 @@ body {
 .icon-button {
   outline: 0;
   position: absolute;
-  right: 10px;
-  top: 12px;
-  width: 32px;
-  height: 32px;
+  right: 15px;
+  top: 15px;
+  width: 40px;
+  height: 40px;
   border: 0;
-  background: 0;
-  padding: 0;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px;
   cursor: pointer;
+  border-radius: 50%;
+  transition: var(--timing-fast);
+  z-index: 10;
+}
+
+.icon-button:hover {
+  background: var(--color-white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.icon-button:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.icon-button svg {
+  width: 100%;
+  height: 100%;
+  fill: var(--color-text-primary);
 }
 
 .scroll-down {
@@ -377,8 +431,8 @@ body {
 }
 
 .nav-login-btn {
-  background: var(--color-primary);
-  color: var(--color-white);
+  background: var(--color-primary) !important;
+  color: var(--color-white) !important;
   border: none;
   padding: 10px 20px;
   border-radius: 6px;
@@ -387,17 +441,63 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all var(--timing-fast) ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 .nav-login-btn:hover {
-  background: var(--color-primary-dark);
+  background: var(--color-primary-dark) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(140, 117, 105, 0.3);
 }
 
 .nav-login-btn:focus {
+  background: var(--color-primary) !important;
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.nav-login-btn:active {
+  background: var(--color-primary-dark) !important;
+  transform: translateY(0);
+}
+
+.nav-login-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.nav-login-btn:visited {
+  background: var(--color-primary) !important;
+  color: var(--color-white) !important;
+}
+
+/* Mobile-specific overrides */
+@media (max-width: 768px) {
+  .nav-login-btn {
+    background: var(--color-primary) !important;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+    tap-highlight-color: rgba(0, 0, 0, 0) !important;
+  }
+  
+  .nav-login-btn:focus,
+  .nav-login-btn:active,
+  .nav-login-btn:hover,
+  .nav-login-btn:visited {
+    background: var(--color-primary) !important;
+    color: var(--color-white) !important;
+  }
+  
+  .nav-login-btn:active {
+    background: var(--color-primary-dark) !important;
+  }
 }
 
 /* No-JS fallback styles */
@@ -519,9 +619,65 @@ body {
 
 @media(max-width: 750px) {
   .modal-container {
-    width: 90%;
+    width: 95%;
+    margin: 10px;
+    max-height: calc(100vh - 20px);
+    flex-direction: column;
   }
+  
   .modal-right {
     display: none;
+  }
+  
+  .modal-left {
+    padding: 40px 20px 20px;
+  }
+  
+  .modal-title {
+    font-size: 22px;
+  }
+  
+  .input-block {
+    min-height: 60px;
+    padding: 14px 16px 12px;
+  }
+  
+  .input-block input {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
+
+@media(max-height: 600px) {
+  .modal.is-open {
+    align-items: flex-start;
+    padding-top: 10px;
+  }
+  
+  .modal-container {
+    position: relative;
+    margin-top: 0;
+  }
+  
+  .modal-left {
+    padding: 30px 20px 15px;
+  }
+  
+  .modal-title {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .modal-desc {
+    margin: 4px 0 20px 0;
+    font-size: 14px;
+  }
+  
+  .input-block {
+    margin-bottom: 15px;
+    min-height: 50px;
+  }
+  
+  .sign-up {
+    margin: 30px 0 0;
   }
 }
